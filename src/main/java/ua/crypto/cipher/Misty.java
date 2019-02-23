@@ -25,9 +25,6 @@ public class Misty {
         int r, l;
         r = (int) input;
         l = (int) rightShift(input, 32);
-        System.out.println(Long.toBinaryString(input));
-        System.out.println(Integer.toBinaryString(r));
-        System.out.println(Integer.toBinaryString(l));
 
         int[] keys = generateRoundKeys(key);
 
@@ -66,13 +63,16 @@ public class Misty {
 
     private int s(int in) {
         int[] bytes = new int[4];
+
         for (int i = 0; i < 4; i++) {
             bytes[3 - i] = rightShift(in, i) & 0xff;
         }
+
         int result = 0;
         for (int i = 0; i < 4; i++) {
             result += leftShift(s_box[bytes[3 - i]], i);
         }
+
         return result;
     }
 }
