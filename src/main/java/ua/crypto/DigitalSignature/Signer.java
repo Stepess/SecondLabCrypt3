@@ -19,49 +19,34 @@ public class Signer {
 
     private SecureRandom random;
 
-
-    public boolean verify(BigInteger S, BigInteger y, BigInteger k, long hash) {
-        return S.mod(p).equals(a.modPow(y.modPow(k, p).multiply(S).mod(p).add(transofrmHash(hash).multiply(k)), p));
+    public boolean verify(Signature s, BigInteger y, long hash) {
+        BigInteger exponent = y.modPow(s.getK(), p)
+                .multiply(s.getS()).mod(p).add(formatHash(hash).multiply(s.getK()));
+        return s.getS().mod(p).equals(a.modPow(exponent, p));
     }
 
-    public Pair<BigInteger, BigInteger> generateKeys() {
-        BigInteger x = new BigInteger(p.bitLength()-1, random);
-        return new Pair<>(
-                x,
-                a.modPow(x, p)
-        );
+    public Key generateKeys() {
+        BigInteger x = new BigInteger(p.bitLength(), random).mod(p);
+        return new Key(x, a.modPow(x, p));
     }
 
-    public Pair<BigInteger, BigInteger> sign(long hash, BigInteger x) {
-        BigInteger H = transofrmHash(hash);
+    public Signature sign(long hash, BigInteger x) {
+        BigInteger H = formatHash(hash);
         BigInteger U = getRandomU();
         BigInteger Z = a.modPow(U, p);
 
-        Pair<BigInteger, BigInteger> kandG = calculateKandG(H, U, Z, x);
+        BigInteger xPlusHModInverse = x.add(H).modInverse(q);
+        BigInteger k = U.subtract(Z).multiply(xPlusHModInverse).mod(q);
+        BigInteger g = x.multiply(Z).add(U.multiply(H)).multiply(xPlusHModInverse).mod(q);
 
-        return new Pair<>(
-                kandG.getLeft(),
-                calculateS(kandG.getRight())
-        );
-    }
-
-    private BigInteger calculateS(BigInteger g) {
-        return a.modPow(g, p);
-    }
-
-    private Pair<BigInteger, BigInteger> calculateKandG(BigInteger H, BigInteger U, BigInteger Z, BigInteger x) {
-        BigInteger xPlusHInverse = x.add(U).modInverse(q);
-        return new Pair<>(
-                U.subtract(Z).mod(q).multiply(xPlusHInverse),
-                x.multiply(Z).add(U.multiply(H)).mod(q).multiply(xPlusHInverse)
-        );
+        return new Signature(k, a.modPow(g, p));
     }
 
     private BigInteger getRandomU() {
-        return new BigInteger(128, random);
+        return new BigInteger(p.bitLength(), random).mod(p);
     }
 
-    private BigInteger transofrmHash(long hash) {
+    private BigInteger formatHash(long hash) {
         BigInteger result = appendBigIntegerWithByte(BigInteger.valueOf(hash), 0x00);
         for (int i=0; i<6; i++) {
             result = appendBigIntegerWithByte(result, 0xFF);
