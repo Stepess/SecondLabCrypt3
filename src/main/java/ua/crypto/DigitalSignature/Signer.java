@@ -32,7 +32,7 @@ public class Signer {
 
     public Signature sign(long hash, BigInteger x) {
         BigInteger H = formatHash(hash);
-        BigInteger U = getRandomU();
+        BigInteger U = new BigInteger(p.bitLength(), random).mod(p);
         BigInteger Z = a.modPow(U, p);
 
         BigInteger xPlusHModInverse = x.add(H).modInverse(q);
@@ -40,10 +40,6 @@ public class Signer {
         BigInteger g = x.multiply(Z).add(U.multiply(H)).multiply(xPlusHModInverse).mod(q);
 
         return new Signature(k, a.modPow(g, p));
-    }
-
-    private BigInteger getRandomU() {
-        return new BigInteger(p.bitLength(), random).mod(p);
     }
 
     private BigInteger formatHash(long hash) {

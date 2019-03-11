@@ -1,4 +1,5 @@
 SecondLab.iml
 target/
+*.txt
 .idea
 

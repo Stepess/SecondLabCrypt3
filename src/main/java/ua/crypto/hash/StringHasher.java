@@ -2,7 +2,7 @@ package ua.crypto.hash;
 
 import ua.crypto.cipher.Misty;
 
-public class Hasher {
+public class StringHasher {
 
     private Misty misty = new Misty();
 

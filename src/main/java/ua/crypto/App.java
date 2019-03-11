@@ -1,19 +1,35 @@
 package ua.crypto;
 
-import ua.crypto.DigitalSignature.Key;
-import ua.crypto.DigitalSignature.Signature;
-import ua.crypto.DigitalSignature.Signer;
+import ua.crypto.cipher.Misty;
+import ua.crypto.hash.ByteHasher;
+import ua.crypto.hash.StringHasher;
+import ua.crypto.util.FileUtils;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 public class App {
 
+    private static Misty misty;
+    private static ByteHasher hasher;
+    private static FileUtils fileUtils;
+
+    static {
+        misty = new Misty();
+        hasher = new ByteHasher();
+        fileUtils = new FileUtils();
+    }
+
     public static void main(String[] args) {
-        Signer signer =  new Signer();
+        List<Byte> bytes = fileUtils.readFileAsByteList("text.txt");
 
-        Key key = signer.generateKeys();
+        byte[] bytesArray = new byte[bytes.size()];
 
-        long hash = 2323523568683423L;
-        Signature sign = signer.sign(hash, key.getX());
+        for (int i=0; i< bytes.size(); i++) {
+            bytesArray[i] = bytes.get(i);
+        }
 
-        System.out.println(signer.verify(sign, key.getY(),  hash));
+        System.out.println(Long.toUnsignedString(hasher.hash(bytesArray), 16));
     }
 }
