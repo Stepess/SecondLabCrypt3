@@ -26,8 +26,8 @@ public class Misty {
         System.out.println("key = " + input);
 
         int r, l;
-        r = (int) input;
-        l = (int) rightShift(input, 32);
+        r = (int) rightShift(input, 32);
+        l = (int) (input & 0x7FFFFFFF16L); //TODO think about it (left , right)
 
         int[] keys = generateRoundKeys(key);
 
@@ -38,7 +38,7 @@ public class Misty {
         }
 
         long result = l;
-        result = rightShift(l,32);
+        result = rightShift(l, 32);
         result += r;
 
         return result;
@@ -48,14 +48,11 @@ public class Misty {
     private int[] generateRoundKeys(long key) {
         int[] keys = new int[4];
 
-        int r,l;
-        r = (int) key;
-        l = (int) rightShift(key, 32);
+        int r, l;
+        r = (int) rightShift(key, 32);
+        l = (int) (key & 0x7FFFFFFF16L);
 
-        keys[0] = l;
-        keys[1] = r;
-        keys[2] = ~r;
-        keys[3] = ~l;
+        keys[0] = l; keys[1] = r; keys[2] = ~r; keys[3] = ~l;
 
         return keys;
     }
@@ -77,5 +74,13 @@ public class Misty {
         }
 
         return result;
+    }
+
+    //util methods
+
+    private void printBytes(long num) {
+        for (int i = 0; i < 8; i++) {
+            System.out.println(Integer.toString((int)(num >> (i * Byte.SIZE)) & 0xFF, 16));
+        }
     }
 }
