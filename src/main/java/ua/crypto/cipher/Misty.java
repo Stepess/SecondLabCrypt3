@@ -30,20 +30,29 @@ public class Misty {
 
         int r, l;
         r = (int) rightShift(input, 32);
-        l = (int) (input & 0x7FFFFFFF16L); //TODO think about it (left , right)
+        l = (int) input; //TODO think about it (left , right)
 
         int[] keys = generateRoundKeys(key);
+
+        System.out.println("DEBUG: L0 = " + Integer.toUnsignedString(l, 16) + " R0 = " +Integer.toUnsignedString(r, 16));
+
 
         for (int i = 0; i <= 3; i++) {
             int buff = r;
             r = l;
-            l = roundFunction(keys[i], buff) ^ l;
+            l = roundFunction(keys[i], buff) ^ r;
+            System.out.println("DEBUG: L" + (i+1) + " = " + Integer.toUnsignedString(l, 16) );
         }
 
-        long result = l;
-        result = rightShift(l, 32);
-        result += r;
 
+        long result = leftPart(l);
+        result ^= r;
+
+
+        /*long result = Long.reverseBytes(leftShift(l,32));
+        result ^= Long.reverseBytes(r);*/
+
+        //result = Long.reverseBytes(result);
         System.out.print("DEBUG: EncryptBlock output = ");
         printBytes(result, 16);
 
@@ -51,12 +60,16 @@ public class Misty {
 
     }
 
+    private long leftPart(int num) {
+        return leftShift(Integer.toUnsignedLong(num), 32);
+    }
+
     private int[] generateRoundKeys(long key) {
         int[] keys = new int[4];
 
         int r, l;
         r = (int) rightShift(key, 32);
-        l = (int) (key & 0x7FFFFFFF16L);
+        l = (int) key;
 
         keys[0] = l;
         keys[1] = r;
@@ -80,12 +93,12 @@ public class Misty {
         int[] bytes = new int[4];
 
         for (int i = 0; i < 4; i++) {
-            bytes[3 - i] = rightShift(in, i) & 0xff;
+            bytes[i] = rightShift(in, i*8) & 0xff;
         }
 
         int result = 0;
         for (int i = 0; i < 4; i++) {
-            result += leftShift(s_box[bytes[3 - i]], i);
+            result ^= leftShift(s_box[bytes[i]], i*8);
         }
 
         return result;
