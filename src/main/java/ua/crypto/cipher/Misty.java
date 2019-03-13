@@ -22,8 +22,11 @@ public class Misty {
             0x8c, 0xa1, 0x89, 0x0d, 0xbf, 0xe6, 0x42, 0x68, 0x41, 0x99, 0x2d, 0x0f, 0xb0, 0x54, 0xbb, 0x16};
 
     public long encrypt(long key, long input) {
-        System.out.println("key = " + key);
-        System.out.println("key = " + input);
+        System.out.print("DEBUG: EncryptBlock input = ");
+        printBytes(input, 16);
+        System.out.print("DEBUG: EncryptBlock key   = ");
+        printBytes(key, 16);
+
 
         int r, l;
         r = (int) rightShift(input, 32);
@@ -41,6 +44,9 @@ public class Misty {
         result = rightShift(l, 32);
         result += r;
 
+        System.out.print("DEBUG: EncryptBlock output = ");
+        printBytes(result, 16);
+
         return result;
 
     }
@@ -52,7 +58,16 @@ public class Misty {
         r = (int) rightShift(key, 32);
         l = (int) (key & 0x7FFFFFFF16L);
 
-        keys[0] = l; keys[1] = r; keys[2] = ~r; keys[3] = ~l;
+        keys[0] = l;
+        keys[1] = r;
+        keys[2] = ~r;
+        keys[3] = ~l;
+
+        System.out.print("DEBUG: ");
+        for (int i = 0; i < 4; i++) {
+            System.out.print("K" + (i+1) + " = " + Integer.toUnsignedString(keys[i],16) + " " );
+        }
+        System.out.println();
 
         return keys;
     }
@@ -78,9 +93,10 @@ public class Misty {
 
     //util methods
 
-    private void printBytes(long num) {
+    private void printBytes(long num, int radix) {
         for (int i = 0; i < 8; i++) {
-            System.out.println(Integer.toString((int)(num >> (i * Byte.SIZE)) & 0xFF, 16));
+            System.out.print(Integer.toString((int) (num >> (i * Byte.SIZE)) & 0xFF, radix) + "   ");
         }
+        System.out.print('\n');
     }
 }
