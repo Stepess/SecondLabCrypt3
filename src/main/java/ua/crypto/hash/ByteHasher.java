@@ -21,11 +21,25 @@ public class ByteHasher {
             resultHash = G(l, resultHash);
         }
 
+
+
+
         return resultHash;
     }
 
     private long G(long text, long hash) {
-        return misty.encrypt(hash, text ^ hash) ^ text ^ hash;
+
+        long e = misty.encrypt(hash, text ^ hash);
+
+        System.out.println("DEBUG: check for equality H = E_K(A) xor B");
+        System.out.println("DEBUG: after EncryptBlock: A = " + Long.toUnsignedString(text ^ hash, 16));
+        System.out.println("DEBUG: after EncryptBlock: K = " + Long.toUnsignedString(hash, 16));
+        System.out.println("DEBUG: after EncryptBlock: E = " + Long.toUnsignedString(e, 16));
+        System.out.println("DEBUG: after EncryptBlock: B = " + Long.toUnsignedString(text ^ hash, 16));
+        System.out.println("DEBUG: after EncryptBlock: H = " + Long.toUnsignedString(e ^ text ^ hash, 16));
+        System.out.println();
+        return e ^ text ^ hash;
+        //return misty.encrypt(hash, text ^ hash) ^ text ^ hash;
     }
 
     private int getLengthWithPadding(int initialLength) {

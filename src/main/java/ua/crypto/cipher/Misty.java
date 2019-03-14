@@ -29,10 +29,12 @@ public class Misty {
 
 
         int r, l;
-        r = (int) rightShift(input, 32);
-        l = (int) input; //TODO think about it (left , right)
+        r = rightBytes(input);
+        l = leftBytes(input); //TODO think about it (left , right)
 
         int[] keys = generateRoundKeys(key);
+
+        System.out.println();
 
         System.out.println("DEBUG: L0 = " + Integer.toUnsignedString(l, 16) + " R0 = " +Integer.toUnsignedString(r, 16));
 
@@ -45,8 +47,7 @@ public class Misty {
         }
 
 
-        long result = leftPart(l);
-        result ^= r;
+        long result = concatResult(r, l);
 
 
         /*long result = Long.reverseBytes(leftShift(l,32));
@@ -55,21 +56,35 @@ public class Misty {
         //result = Long.reverseBytes(result);
         System.out.print("DEBUG: EncryptBlock output = ");
         printBytes(result, 16);
+        System.out.println();
+
+
+
+        System.out.println("DEBUG: Hash = " + Long.toUnsignedString(result, 16));
+        System.out.println();
 
         return result;
 
     }
 
-    private long leftPart(int num) {
-        return leftShift(Integer.toUnsignedLong(num), 32);
+    private int rightBytes(long num) {
+        return (int) rightShift(num, 32);
+    }
+
+    private int leftBytes(long num) {
+        return (int) num;
+    }
+
+    private long concatResult(int left, int right) {
+        return Integer.toUnsignedLong(left) ^ leftShift(Integer.toUnsignedLong(right), 32);
     }
 
     private int[] generateRoundKeys(long key) {
         int[] keys = new int[4];
 
         int r, l;
-        r = (int) rightShift(key, 32);
-        l = (int) key;
+        r = rightBytes(key);
+        l = leftBytes(key);
 
         keys[0] = l;
         keys[1] = r;
