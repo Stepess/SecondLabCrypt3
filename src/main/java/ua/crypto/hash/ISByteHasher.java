@@ -3,26 +3,20 @@ package ua.crypto.hash;
 import ua.crypto.cipher.Misty;
 import ua.crypto.util.ShiftUtils;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 
-public class ByteHasher {
+public class ISByteHasher {
+
 
     public static final int BLOCK_LENGTH_IN_BYTES = 8;
     public static final int BITS_IN_BYTE = 8;
 
     private Misty misty = new Misty();
 
-    public long hash(byte[] text) {
-        System.out.println("Incoming bytes: " + Arrays.toString(text));
-        long resultHash = 0L;
-
-        for (long l: padding(text)) {
-            //printBytes(l, 16);
-            //resultHash = GLikeInExample(l, resultHash);
-            resultHash = G(l, resultHash);
-        }
-
-        return resultHash;
+    public long hash(long num, long hash) {
+        return G(num, hash);
     }
 
     private long G(long text, long hash) {
@@ -62,27 +56,16 @@ public class ByteHasher {
         return missing == 0 ? initialLength / BLOCK_LENGTH_IN_BYTES : (initialLength + BLOCK_LENGTH_IN_BYTES - missing) / BLOCK_LENGTH_IN_BYTES;
     }
 
-    private long[] padding(byte[] text) {
-        long[] padded = new long[getLengthWithPadding(text.length)];
 
-
-        for (int i = 0; i < text.length; i++) {
-            padded[i / BLOCK_LENGTH_IN_BYTES] ^=  Byte.toUnsignedLong(text[i]) << (BITS_IN_BYTE * (i % BLOCK_LENGTH_IN_BYTES));
+    public long setHighestOneBit(long num) {
+        int bits = 63;
+        System.out.println(bits);
+        while ((num & ShiftUtils.leftShift(1L, bits)) == 0) {
+            bits--;
+            if (bits<0) break;
         }
-
-        padded[ShiftUtils.rightShift(text.length, 3)] ^= ShiftUtils.leftShift(0x80L, 8*(text.length%8) );
-
-        return padded;
-    }
-
-    private long setHighestOneBit(long num, int byteLength) {
-        int leftByte = (byteLength << 3) & 63;
-        while ((num & ShiftUtils.leftShift(1L, leftByte)) == 0) {
-            leftByte--;
-        }
-        //return num ^ ShiftUtils.leftShift(512L, ++leftByte); text.txt
-        return num ^ ShiftUtils.leftShift(0x80L, ++leftByte);
-        //return num ^ ShiftUtils.leftShift(1L, ++leftByte);
+        System.out.println(bits);
+        return bits == 63 ? 1 : num ^ ShiftUtils.leftShift(1L, ++bits);
     }
 
     private void printBytes(long num, int radix) {
@@ -91,4 +74,5 @@ public class ByteHasher {
         }
         System.out.print('\n');
     }
+
 }

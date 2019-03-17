@@ -22,6 +22,7 @@ public class Misty {
             0x8c, 0xa1, 0x89, 0x0d, 0xbf, 0xe6, 0x42, 0x68, 0x41, 0x99, 0x2d, 0x0f, 0xb0, 0x54, 0xbb, 0x16};
 
     public long encrypt(long key, long input) {
+        System.out.println();
         System.out.print("DEBUG: EncryptBlock input = ");
         printBytes(input, 16);
         System.out.print("DEBUG: EncryptBlock key   = ");
@@ -48,6 +49,7 @@ public class Misty {
 
 
         long result = concatResult(r, l);
+        //long result = concatResultAsInExample(r, l);
 
 
         /*long result = Long.reverseBytes(leftShift(l,32));
@@ -75,8 +77,24 @@ public class Misty {
         return (int) num;
     }
 
+    /**
+     * Like was described in the book
+     * @param left
+     * @param right
+     * @return
+     */
     private long concatResult(int left, int right) {
         return Integer.toUnsignedLong(left) ^ leftShift(Integer.toUnsignedLong(right), 32);
+    }
+
+    /**
+     * Just to obtain that save output as in the example
+     * @param left
+     * @param right
+     * @return
+     */
+    private long concatResultAsInExample(int left, int right) {
+        return Long.reverseBytes(Integer.toUnsignedLong(left)) ^ Long.reverseBytes(leftShift(Integer.toUnsignedLong(right), 32));
     }
 
     private int[] generateRoundKeys(long key) {
@@ -91,11 +109,11 @@ public class Misty {
         keys[2] = ~r;
         keys[3] = ~l;
 
+        System.out.println();
         System.out.print("DEBUG: ");
         for (int i = 0; i < 4; i++) {
             System.out.print("K" + (i+1) + " = " + Integer.toUnsignedString(keys[i],16) + " " );
         }
-        System.out.println();
 
         return keys;
     }
