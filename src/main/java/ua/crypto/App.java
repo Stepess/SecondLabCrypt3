@@ -4,7 +4,7 @@ import ua.crypto.DigitalSignature.Key;
 import ua.crypto.DigitalSignature.Signature;
 import ua.crypto.DigitalSignature.SignatureWithAllValues;
 import ua.crypto.DigitalSignature.Signer;
-import ua.crypto.cipher.Misty;
+import ua.crypto.cipher.MistyDebug;
 import ua.crypto.hash.ISByteHasher;
 import ua.crypto.util.FileUtils;
 
@@ -17,14 +17,14 @@ public class App {
     public static final String SIGN_FLAG = "-sign";
     public static final String CHECK_FLAG = "-check";
 
-    private static Misty misty;
+    private static MistyDebug misty;
     //private static ByteHasher hasher;
     private static FileUtils fileUtils;
     private static ISByteHasher hasher;
     private static Signer signer;
 
     static {
-        misty = new Misty();
+        misty = new MistyDebug();
         //hasher = new ByteHasher();
         hasher = new ISByteHasher();
         fileUtils = new FileUtils();
@@ -35,11 +35,11 @@ public class App {
     public static void main(String[] args) throws IOException {
 
         //String flag = args[0];
-        String flag = "-check";
+        String flag = "-sign";
 
         switch (flag) {
             case SIGN_FLAG:
-                String fileToSign = "text";
+                String fileToSign = "kek";
 
                 long hashToSign = hasher.hash(new FileInputStream(fileToSign + ".txt"));
 

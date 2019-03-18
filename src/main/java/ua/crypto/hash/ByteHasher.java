@@ -1,6 +1,6 @@
 package ua.crypto.hash;
 
-import ua.crypto.cipher.Misty;
+import ua.crypto.cipher.MistyDebug;
 import ua.crypto.util.ShiftUtils;
 
 import java.util.Arrays;
@@ -10,7 +10,7 @@ public class ByteHasher {
     public static final int BLOCK_LENGTH_IN_BYTES = 8;
     public static final int BITS_IN_BYTE = 8;
 
-    private Misty misty = new Misty();
+    private MistyDebug misty = new MistyDebug();
 
     public long hash(byte[] text) {
         System.out.println("Incoming bytes: " + Arrays.toString(text));

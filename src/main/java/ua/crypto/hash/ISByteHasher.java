@@ -1,5 +1,6 @@
 package ua.crypto.hash;
 
+import ua.crypto.cipher.IMisty;
 import ua.crypto.cipher.Misty;
 import ua.crypto.util.ShiftUtils;
 
@@ -8,7 +9,7 @@ import java.io.InputStream;
 
 public class ISByteHasher {
 
-    private Misty misty = new Misty();
+    private IMisty misty = new Misty();
 
     public long hash(InputStream is) throws IOException {
         byte[] buff = new byte[8];
@@ -21,7 +22,7 @@ public class ISByteHasher {
             resultHash = G(bytesToLong(buff), resultHash);
         }
 
-        long lastBlock = bytesToLong(buff, read);
+        long lastBlock = bytesToLong(buff, read < 0 ? 0 : read);
 
         return G(lastBlock, resultHash);
     }
