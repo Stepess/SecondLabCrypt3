@@ -17,8 +17,6 @@ public class ByteHasher {
         long resultHash = 0L;
 
         for (long l: padding(text)) {
-            //printBytes(l, 16);
-            //resultHash = GLikeInExample(l, resultHash);
             resultHash = G(l, resultHash);
         }
 
@@ -37,7 +35,6 @@ public class ByteHasher {
         System.out.println("DEBUG: after EncryptBlock: H = " + Long.toUnsignedString(e ^ text ^ hash, 16));
         System.out.println();
         return e ^ text ^ hash;
-        //return misty.encrypt(hash, text ^ hash) ^ text ^ hash;
     }
 
     private long GLikeInExample(long text, long hash) {
@@ -54,7 +51,6 @@ public class ByteHasher {
         System.out.println("DEBUG: after EncryptBlock: H = " + Long.toUnsignedString(e ^ a, 16));
         System.out.println();
         return e ^ a;
-        //return misty.encrypt(hash, text ^ hash) ^ text ^ hash;
     }
 
     private int getLengthWithPadding(int initialLength) {
@@ -82,7 +78,6 @@ public class ByteHasher {
         }
         //return num ^ ShiftUtils.leftShift(512L, ++leftByte); text.txt
         return num ^ ShiftUtils.leftShift(0x80L, ++leftByte);
-        //return num ^ ShiftUtils.leftShift(1L, ++leftByte);
     }
 
     private void printBytes(long num, int radix) {
