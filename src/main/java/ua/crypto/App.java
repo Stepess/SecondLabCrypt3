@@ -9,6 +9,7 @@ import ua.crypto.hash.ISByteHasher;
 import ua.crypto.util.FileUtils;
 
 import java.io.*;
+import java.math.BigInteger;
 
 public class App {
 
@@ -38,38 +39,35 @@ public class App {
 
         switch (flag) {
             case SIGN_FLAG:
-                String fileName = "text";
+                String fileToSign = "text";
 
-                long hash = hasher.hash(new FileInputStream(fileName + ".txt"));
+                long hashToSign = hasher.hash(new FileInputStream(fileToSign + ".txt"));
 
                 Key key = signer.generateKeys();
-                SignatureWithAllValues signature = signer.signWithAllValues(hash, key.getX());
+                SignatureWithAllValues signatureWithAllValues = signer.signWithAllValues(hashToSign, key.getX());
 
-                try(Writer writer = new FileWriter(fileName + ".sig")) {
+                try (Writer writer = new FileWriter(fileToSign + ".sig")) {
                     writer.write(DIVIDER);
 
-
-                    writer.write(fileName);
+                    writer.write(fileToSign);
                     writer.append('\n');
-                    writer.write("H = " + Long.toUnsignedString(Long.reverseBytes(hash), 16)); // to achieve example's view
+                    writer.write("H = " + Long.toUnsignedString(Long.reverseBytes(hashToSign), 16)); // to achieve example's view
                     writer.append('\n');
-
-
 
                     writer.write("Y = " + key.getY().toString(16));
                     writer.append('\n');
-                    writer.write("K = " + signature.getK().toString(16));
+                    writer.write("K = " + signatureWithAllValues.getK().toString(16));
                     writer.append('\n');
-                    writer.write("S = " + signature.getS().toString(16));
+                    writer.write("S = " + signatureWithAllValues.getS().toString(16));
                     writer.append('\n');
 
                     writer.write(DIVIDER);
 
-                    writer.write("U = " + signature.getU().toString(16));
+                    writer.write("U = " + signatureWithAllValues.getU().toString(16));
                     writer.append('\n');
-                    writer.write("Z = " + signature.getZ().toString(16));
+                    writer.write("Z = " + signatureWithAllValues.getZ().toString(16));
                     writer.append('\n');
-                    writer.write("G = " + signature.getG().toString(16));
+                    writer.write("G = " + signatureWithAllValues.getG().toString(16));
                     writer.append('\n');
 
                     writer.write(DIVIDER);
@@ -79,20 +77,27 @@ public class App {
 
                 break;
             case CHECK_FLAG:
-                String fileToCheck= "text";
+                String fileToCheck = "text";
 
-                long hash1 = hasher.hash(new FileInputStream(fileToCheck + ".txt"));
+                long hashToCheck = hasher.hash(new FileInputStream(fileToCheck + ".txt"));
 
-                try(BufferedReader reader = new BufferedReader(new FileReader(fileToCheck + ".sig"))) {
-                    reader.skip(30);
-                    System.out.println(reader.readLine());
-                    System.out.println(reader.readLine());
-                    System.out.println(reader.readLine());
-                    System.out.println(reader.readLine());
+                try (BufferedReader reader = new BufferedReader(new FileReader(fileToCheck + ".sig"))) {
+                    reader.skip(31);
+                    reader.readLine();
+                    reader.readLine();
+
+                    String Y = retrieveNum(reader.readLine());
+                    String K = retrieveNum(reader.readLine());
+                    String S = retrieveNum(reader.readLine());
+
+                    Signature signature = new Signature(new BigInteger(K, 16), new BigInteger(S, 16));
+
+                    boolean result = signer.verify(signature, new BigInteger(Y, 16), hashToCheck);
+
+                    System.out.println(result ? "Signature is right" : "Signature is wrong");
+                } catch (IOException ex) {
+                    ex.printStackTrace();
                 }
-             catch (IOException ex) {
-                ex.printStackTrace();
-            }
                 break;
             default:
                 System.out.println("Wrong flag!");
@@ -101,6 +106,9 @@ public class App {
 
     }
 
+    private static String retrieveNum(String rawNum) {
+        return rawNum.substring(4);
+    }
 
    /* public static void main(String[] args) {
         List<Byte> bytes = fileUtils.readFileAsByteList("123.txt");
