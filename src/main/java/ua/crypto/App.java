@@ -34,15 +34,13 @@ public class App {
     public static void main(String[] args) throws IOException {
 
         //String flag = args[0];
-        String flag = "-sign";
+        String flag = "-check";
 
         switch (flag) {
             case SIGN_FLAG:
                 String fileName = "text";
 
-                InputStream inputStream = new FileInputStream(fileName + ".txt");
-
-                long hash = hasher.hash(inputStream);
+                long hash = hasher.hash(new FileInputStream(fileName + ".txt"));
 
                 Key key = signer.generateKeys();
                 SignatureWithAllValues signature = signer.signWithAllValues(hash, key.getX());
@@ -81,7 +79,20 @@ public class App {
 
                 break;
             case CHECK_FLAG:
-                //some code
+                String fileToCheck= "text";
+
+                long hash1 = hasher.hash(new FileInputStream(fileToCheck + ".txt"));
+
+                try(BufferedReader reader = new BufferedReader(new FileReader(fileToCheck + ".sig"))) {
+                    reader.skip(30);
+                    System.out.println(reader.readLine());
+                    System.out.println(reader.readLine());
+                    System.out.println(reader.readLine());
+                    System.out.println(reader.readLine());
+                }
+             catch (IOException ex) {
+                ex.printStackTrace();
+            }
                 break;
             default:
                 System.out.println("Wrong flag!");
