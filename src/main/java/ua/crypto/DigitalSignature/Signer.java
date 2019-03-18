@@ -42,6 +42,26 @@ public class Signer {
         return new Signature(k, a.modPow(g, p));
     }
 
+    public SignatureWithAllValues signWithAllValues(long hash, BigInteger x) {
+        BigInteger H = formatHash(hash);
+        BigInteger U = new BigInteger(p.bitLength(), random).mod(p);
+        BigInteger Z = a.modPow(U, p);
+
+        BigInteger xPlusHModInverse = x.add(H).modInverse(q);
+        BigInteger k = U.subtract(Z).multiply(xPlusHModInverse).mod(q);
+        BigInteger g = x.multiply(Z).add(U.multiply(H)).multiply(xPlusHModInverse).mod(q);
+
+        BigInteger S = a.modPow(g, p);
+
+        return new SignatureWithAllValuesBuilder()
+                .setG(g)
+                .setK(k)
+                .setS(S)
+                .setU(U)
+                .setZ(Z)
+                .createSignatureWithAllValues();
+    }
+
     private BigInteger formatHash(long hash) {
         BigInteger result = appendBigIntegerWithByte(BigInteger.valueOf(hash), 0x00);
         for (int i=0; i<6; i++) {

@@ -2,4 +2,6 @@ SecondLab.iml
 target/
 *.txt
 .idea
-
+.DS_store
+*.jar
+*.sig
