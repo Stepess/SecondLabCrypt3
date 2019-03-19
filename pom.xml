@@ -5,10 +5,10 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>ua.crypto</groupId>
-  <artifactId>SecondLab</artifactId>
+  <artifactId>DSProtocol</artifactId>
   <version>1.0-SNAPSHOT</version>
 
-  <name>SecondLab</name>
+  <name>DSProtocol</name>
   <!-- FIXME change it to the project's website -->
   <url>http://www.example.com</url>
 
