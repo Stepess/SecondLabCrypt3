@@ -25,6 +25,11 @@ public class App {
 
     public static void main(String[] args) throws IOException {
 
+        args = new String[2];
+
+        args[0] = "-sign";
+        args[1] = "kek";
+
         try {
             String flag = args[0];
 
@@ -118,6 +123,7 @@ public class App {
                             "Available flags: [-sign, -check]");
             }
         } catch (ArrayIndexOutOfBoundsException ex) {
+            ex.printStackTrace();
             System.out.println("Wrong usage!\n" +
                     "Possible usage: 'java -jar DSProtocol-1.0-SNAPSHOT.jar <flag> <fileName>'\n" +
                     "Available flags: [-sign, -check]");
