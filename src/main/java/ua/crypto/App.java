@@ -8,6 +8,7 @@ import ua.crypto.hash.ISByteHasher;
 
 import java.io.*;
 import java.math.BigInteger;
+import java.sql.SQLOutput;
 
 public class App {
 
@@ -17,18 +18,33 @@ public class App {
 
     private static ISByteHasher hasher;
     private static Signer signer;
+    private static Integer bufferSize = 30;
 
     static {
-        hasher = new ISByteHasher();
         signer = new Signer();
     }
 
     public static void main(String[] args) throws IOException {
 
-        args = new String[2];
+        args = new String[3];
 
         args[0] = "-sign";
         args[1] = "kek";
+        args[2] = "3";
+
+        try {
+            if (args.length == 3) {
+                bufferSize = Integer.parseInt(args[2]);
+                if (bufferSize < 1) {
+                    throw new NumberFormatException();
+                }
+            }
+        }
+        catch (NumberFormatException ex) {
+            System.out.println("Buffer size should be positive value");
+        }
+
+        hasher = new ISByteHasher(bufferSize);
 
         try {
             String flag = args[0];
@@ -47,7 +63,10 @@ public class App {
                         return;
                     }
 
-                    long hashToSign = hasher.hash(new FileInputStream(fileToSign + ".txt"));
+                    long hashToSign = 0L;
+                    //try(FileInputStream fis = ) {
+                        hashToSign = hasher.hash(new FileInputStream(fileToSign + ".txt"));
+                   // }
 
                     Key key = signer.generateKeys();
                     SignatureWithAllValues signatureWithAllValues = signer.signWithAllValues(hashToSign, key.getX());
@@ -125,8 +144,9 @@ public class App {
         } catch (ArrayIndexOutOfBoundsException ex) {
             ex.printStackTrace();
             System.out.println("Wrong usage!\n" +
-                    "Possible usage: 'java -jar DSProtocol-1.0-SNAPSHOT.jar <flag> <fileName>'\n" +
-                    "Available flags: [-sign, -check]");
+                    "Possible usage: 'java -jar DSProtocol-1.0-SNAPSHOT.jar <flag> <fileName> <bufferSize>'\n" +
+                    "Available flags: [-sign, -check]\n" +
+                    "<bufferSize> could be omitted");
         }
 
     }
