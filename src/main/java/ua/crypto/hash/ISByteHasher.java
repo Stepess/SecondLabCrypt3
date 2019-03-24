@@ -12,50 +12,45 @@ public class ISByteHasher {
     private IMisty misty = new Misty();
 
     private int BUFFER_SIZE;
+    private int BYTES_TO_READ;
     private static final int BITS_IN_BYTE = 8;
-    private int BYTES_TO_READ = BITS_IN_BYTE * BUFFER_SIZE;
 
     public ISByteHasher(int bufferSize) {
         this.BUFFER_SIZE = bufferSize;
+        this.BYTES_TO_READ = BITS_IN_BYTE * BUFFER_SIZE;
     }
 
     public long hash(InputStream is) throws IOException {
         byte[] buffer = new byte[BYTES_TO_READ];
         byte[] temp = new byte[8];
 
-        int read;
         long resultHash = 0L;
+        int amountOfRemainedBytes;
 
-        while ((read = is.read(buffer)) == BYTES_TO_READ) {
-            resultHash = hashFullBlocks(buffer, temp, resultHash, BUFFER_SIZE);
+        while ((amountOfRemainedBytes = is.read(buffer)) == BYTES_TO_READ) {
+            for (int i = 0; i < BUFFER_SIZE; i++) {
+                System.arraycopy(buffer, i * BITS_IN_BYTE, temp, 0, BITS_IN_BYTE);
+                resultHash = G(bytesToLong(temp), resultHash);
+            }
         }
 
-        read = read < 0 ? 0 : read;
-        int amountOfFullBlocks = read / BITS_IN_BYTE;
-        int restOfBytes = read % BITS_IN_BYTE;
+        long lastBlock;
 
-        resultHash = hashFullBlocks(buffer, temp, resultHash, amountOfFullBlocks);
+        amountOfRemainedBytes = amountOfRemainedBytes < 0 ? 0 : amountOfRemainedBytes;
 
-        long lastBlock = getLastBlock(buffer, temp, restOfBytes, amountOfFullBlocks);
+
+        int limit = amountOfRemainedBytes / BITS_IN_BYTE;
+        for (int i = 0; i < limit; i++) {
+            System.arraycopy(buffer, i * BITS_IN_BYTE, temp, 0, BITS_IN_BYTE);
+            resultHash = G(bytesToLong(temp), resultHash);
+        }
+        System.arraycopy(buffer, limit * BITS_IN_BYTE, temp, 0, amountOfRemainedBytes % BITS_IN_BYTE);
+        lastBlock = bytesToLong(temp, amountOfRemainedBytes % BITS_IN_BYTE);
+
 
         return G(lastBlock, resultHash);
     }
 
-    private long getLastBlock(byte[] buffer, byte[] temp, int read, int limit) {
-        System.arraycopy(buffer, limit * BITS_IN_BYTE, temp, 0, read);
-        return bytesToLong(temp, read);
-    }
-
-    private long hashFullBlocks(byte[] buffer, byte[] temp, long prevHash, int limit) {
-        long resultHash = prevHash;
-
-        for (int i = 0; i < limit; i++) {
-            System.arraycopy(buffer, i * BITS_IN_BYTE, temp, 0, 8);
-            resultHash = G(bytesToLong(temp), resultHash);
-        }
-
-        return resultHash;
-    }
 
     private long G(long text, long hash) {
         return misty.encrypt(hash, text ^ hash) ^ text ^ hash;

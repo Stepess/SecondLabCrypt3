@@ -8,7 +8,6 @@ import ua.crypto.hash.ISByteHasher;
 
 import java.io.*;
 import java.math.BigInteger;
-import java.sql.SQLOutput;
 
 public class App {
 
@@ -18,19 +17,13 @@ public class App {
 
     private static ISByteHasher hasher;
     private static Signer signer;
-    private static Integer bufferSize = 30;
+    private static Integer bufferSize = 51200; // probably optimal value
 
     static {
         signer = new Signer();
     }
 
     public static void main(String[] args) throws IOException {
-
-        args = new String[3];
-
-        args[0] = "-sign";
-        args[1] = "kek";
-        args[2] = "3";
 
         try {
             if (args.length == 3) {
@@ -64,9 +57,10 @@ public class App {
                     }
 
                     long hashToSign = 0L;
-                    //try(FileInputStream fis = ) {
-                        hashToSign = hasher.hash(new FileInputStream(fileToSign + ".txt"));
-                   // }
+
+                    try(FileInputStream fis = new FileInputStream(fileToSign + ".txt")) {
+                        hashToSign = hasher.hash(fis);
+                    }
 
                     Key key = signer.generateKeys();
                     SignatureWithAllValues signatureWithAllValues = signer.signWithAllValues(hashToSign, key.getX());
@@ -142,9 +136,8 @@ public class App {
                             "Available flags: [-sign, -check]");
             }
         } catch (ArrayIndexOutOfBoundsException ex) {
-            ex.printStackTrace();
             System.out.println("Wrong usage!\n" +
-                    "Possible usage: 'java -jar DSProtocol-1.0-SNAPSHOT.jar <flag> <fileName> <bufferSize>'\n" +
+                    "Possible usage: 'java -jar DSProtocol-1.1.jar <flag> <fileName> <bufferSize>'\n" +
                     "Available flags: [-sign, -check]\n" +
                     "<bufferSize> could be omitted");
         }
